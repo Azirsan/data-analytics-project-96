@@ -11,8 +11,7 @@ with pain as (select
 , visit_date
 , max (visit_date) over (partition by sessions.visitor_id, lead_id) as lst_visit
 from sessions
-left join leads on sessions.visitor_id=leads.visitor_id
-where medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social'))
+left join leads on sessions.visitor_id=leads.visitor_id)
 select 
 visitor_id
 , visit_date
@@ -25,6 +24,6 @@ visitor_id
 , closing_reason
 , status_id
 from pain
-where lst_visit=visit_date
+where lst_visit=visit_date and Utm_medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
 order by amount DESC NULLS last, visit_date asc, utm_source asc, utm_medium asc, utm_campaign asc
 limit 10;
