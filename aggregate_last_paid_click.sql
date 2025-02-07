@@ -41,12 +41,7 @@ lst_click AS (
         leads l
   JOIN 
         sessions s ON l.visitor_id = s.visitor_id
-    WHERE 
-        s.visit_date <= l.created_at
-        AND s.source IN (SELECT utm_source FROM ads)
-        AND s.medium IN (SELECT utm_medium FROM ads)
-        AND s.campaign IN (SELECT utm_campaign FROM ads)
-), -- нашли ютмки по модели последний клик у последней конверсии
+   ), -- нашли ютмки по модели последний клик у последней конверсии
 total_amount as (select
 to_char(visit_date, 'DD.MM.YYYY') as visit_date
 , source
@@ -56,7 +51,11 @@ to_char(visit_date, 'DD.MM.YYYY') as visit_date
 ,  SUM(CASE WHEN closing_reason = 'Успешная продажа' THEN 1 ELSE 0 END) AS purchases_count
 , sum (amount) as revenue
 from lst_click 
-where row_num=1
+where row_num=1 and  
+        visit_date <= lead_created_at
+        AND source IN (SELECT utm_source FROM ads)
+        AND medium IN (SELECT utm_medium FROM ads)
+        AND campaign IN (SELECT utm_campaign FROM ads)
 group by to_char(visit_date, 'DD.MM.YYYY')
 , source
 , medium
