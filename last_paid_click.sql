@@ -1,29 +1,39 @@
-with pain as (select 
- source as utm_source 
-, medium as utm_medium 
-, campaign as utm_campaign
-, lead_id
-, closing_reason
-, status_id
-, sessions.visitor_id
-, amount
-, created_at
-, visit_date
-, max (visit_date) over (partition by sessions.visitor_id, lead_id) as lst_visit
-from sessions
-left join leads on sessions.visitor_id=leads.visitor_id)
+with pain as (SELECT 
+        l.visitor_id,
+        s.visit_date,
+        s.source as utm_source,
+        s.medium as utm_medium,
+        s.campaign as utm_campaign,
+        lead_id, 
+       l.created_at,        
+        l.amount,
+        closing_reason,
+        l.status_id,
+        ROW_NUMBER() OVER (PARTITION BY l.visitor_id ORDER BY l.created_at DESC, s.visit_date DESC) AS row_num
+    FROM 
+        leads l
+  JOIN 
+        sessions s ON l.visitor_id = s.visitor_id
+    WHERE 
+        s.visit_date <= l.created_at
+      and medium not in ('organic'))
 select 
-visitor_id
-, visit_date
-, utm_source 
-, utm_medium 
-, utm_campaign
-, lead_id
-, created_at
-, amount
-, closing_reason
-, status_id
+visitor_id,
+visit_date,
+utm_source,
+utm_medium, 
+utm_campaign,
+lead_id,
+created_at,
+amount,
+closing_reason,
+status_id
 from pain
-where lst_visit=visit_date and Utm_medium in ('cpc', 'cpm', 'cpa', 'youtube', 'cpp', 'tg', 'social')
-order by amount DESC NULLS last, visit_date asc, utm_source asc, utm_medium asc, utm_campaign asc
+where pain.row_num=1
+ORDER BY
+    amount DESC NULLS LAST,
+    visit_date ASC, 
+    utm_source ASC, 
+    utm_medium ASC, 
+    utm_campaign asc
 limit 10;
