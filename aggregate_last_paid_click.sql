@@ -85,4 +85,5 @@ ORDER BY
     l.visitors_count DESC, 
     l.utm_source, 
     l.utm_medium, 
-    l.utm_campaign;
+    l.utm_campaign
+    LIMIT 15;
