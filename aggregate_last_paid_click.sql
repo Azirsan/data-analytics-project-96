@@ -63,7 +63,7 @@ SELECT
     l.utm_source,
     l.utm_medium,
     l.utm_campaign,
-    COALESCE(at.total_cost, 0) AS total_cost,
+    total_cost,
     l.leads_count,
     l.purchases_count,
     l.revenue
