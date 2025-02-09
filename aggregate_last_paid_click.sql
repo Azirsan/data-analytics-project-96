@@ -9,6 +9,7 @@ WITH lst_click AS (
     GROUP BY 
         visitor_id
 ),
+
 ads_total AS (
     SELECT 
         to_char(campaign_date, 'YYYY-MM-DD') AS camp_date,
@@ -40,6 +41,7 @@ ads_total AS (
         utm_medium, 
         utm_campaign
 ),
+
 leads AS (
     SELECT
         s.source AS utm_source,
@@ -62,6 +64,7 @@ leads AS (
     GROUP BY 
         s.source, s.medium, s.campaign, DATE(lc.lst_visit)
 )
+
 SELECT 
     TO_CHAR(l.visit_date, 'YYYY-MM-DD') AS visit_date,
     l.visitors_count,
