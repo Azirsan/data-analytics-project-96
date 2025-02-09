@@ -1,7 +1,7 @@
 WITH lst_click AS (
     SELECT
         visitor_id,
-        MAX(visit_date) AS lst_visit
+        MAX(sessions.visit_date) AS lst_visit
     FROM
         sessions
     WHERE
@@ -9,7 +9,6 @@ WITH lst_click AS (
     GROUP BY
         visitor_id
 ),
-
 ads_total AS (
     SELECT
         TO_CHAR(campaign_date, 'YYYY-MM-DD') AS camp_date,
@@ -43,7 +42,6 @@ ads_total AS (
         utm_medium,
         utm_campaign
 ),
-
 leads AS (
     SELECT
         s.source AS utm_source,
@@ -76,28 +74,24 @@ leads AS (
         s.campaign,
         DATE(lc.lst_visit)
 )
-
 SELECT
     visit_date,
     l.visitors_count,
     l.utm_source,
     l.utm_medium,
     l.utm_campaign,
-    at.total_cost,
+    atot.total_cost,
     l.leads_count,
     l.purchases_count,
     l.revenue
-/*, COALESCE(at.total_cost / NULLIF(l.visitors_count, 0), 0) AS cpu,
-    COALESCE(at.total_cost / NULLIF(l.leads_count, 0), 0) AS cpl,
-    COALESCE(100 * (l.revenue - at.total_cost) / NULLIF(at.total_cost, 0), 0) AS roi*/
 FROM
     leads AS l
-LEFT JOIN ads_total AS at
+LEFT JOIN ads_total as atot
     ON
-        TO_CHAR(l.visit_date, 'YYYY-MM-DD') = at.camp_date
-        AND l.utm_source = at.utm_source
-        AND l.utm_medium = at.utm_medium
-        AND l.utm_campaign = at.utm_campaign
+        TO_CHAR(l.visit_date, 'YYYY-MM-DD') = atot.camp_date
+        AND l.utm_source = atot.utm_source
+        AND l.utm_medium = atot.utm_medium
+        AND l.utm_campaign = atot.utm_campaign
 ORDER BY
     l.revenue DESC NULLS LAST,
     l.visit_date ASC,
