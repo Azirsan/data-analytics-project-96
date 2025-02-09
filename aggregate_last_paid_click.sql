@@ -1,7 +1,7 @@
 WITH lst_click AS (
     SELECT
         visitor_id,
-        MAX(visit_date) AS lst_visit -- психанул переписал через max, потому что через row_number итоги отличались от верного результата на единицу, Карл (!)
+        MAX(visit_date) AS lst_visit -- психанул
     FROM 
         sessions
     WHERE 
