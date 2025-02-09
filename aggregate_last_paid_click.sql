@@ -78,7 +78,7 @@ leads AS (
 )
 
 SELECT
-    visit_date,
+    l.visit_date,
     l.visitors_count,
     l.utm_source,
     l.utm_medium,
