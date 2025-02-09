@@ -68,7 +68,7 @@ leads AS (
     DATE(lc.lst_visit)
 ) 
 SELECT 
-  TO_CHAR(l.visit_date, 'YYYY-MM-DD') AS visit_date, 
+visit_date, 
   l.visitors_count, 
   l.utm_source, 
   l.utm_medium, 
@@ -76,10 +76,10 @@ SELECT
   at.total_cost, 
   l.leads_count, 
   l.purchases_count, 
-  l.revenue,
- COALESCE(at.total_cost / NULLIF(l.visitors_count, 0), 0) AS cpu,
+  l.revenue
+ /*, COALESCE(at.total_cost / NULLIF(l.visitors_count, 0), 0) AS cpu,
     COALESCE(at.total_cost / NULLIF(l.leads_count, 0), 0) AS cpl,
-    COALESCE(100 * (l.revenue - at.total_cost) / NULLIF(at.total_cost, 0), 0) AS roi
+    COALESCE(100 * (l.revenue - at.total_cost) / NULLIF(at.total_cost, 0), 0) AS roi*/
 FROM 
   leads l 
   LEFT JOIN ads_total at ON TO_CHAR(l.visit_date, 'YYYY-MM-DD') = at.camp_date 
