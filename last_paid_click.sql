@@ -5,10 +5,10 @@ WITH pain AS (
         s.source AS utm_source,
         s.medium AS utm_medium,
         s.campaign AS utm_campaign,
-        l.lead_id, 
+        l.lead_id,
         l.created_at,
         l.amount,
-        l.closing_reason, 
+        l.closing_reason,
         l.status_id,
         ROW_NUMBER() OVER (
             PARTITION BY l.visitor_id
