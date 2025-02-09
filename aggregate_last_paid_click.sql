@@ -81,4 +81,4 @@ ORDER BY
     l.utm_source, 
     l.utm_medium, 
     l.utm_campaign
-limit 10;
+limit 15;
