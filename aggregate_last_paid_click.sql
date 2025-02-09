@@ -58,7 +58,7 @@ leads AS (
         s.source, s.medium, s.campaign, date(lc.lst_visit)
 )
 SELECT 
-    l.visit_date,
+    to_char(l.visit_date, 'YYYY-MM-DD') as visit_date,
     l.visitors_count,
     l.utm_source,
     l.utm_medium,
