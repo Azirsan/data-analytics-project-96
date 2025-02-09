@@ -84,11 +84,11 @@ FROM
   AND l.utm_medium = at.utm_medium 
   AND l.utm_campaign = at.utm_campaign 
 ORDER BY 
-  revenue DESC NULLS LAST, 
-  visit_date ASC, 
-  visitors_count DESC, 
-  utm_source, 
-  utm_medium, 
-  utm_campaign 
+  9 DESC NULLS LAST, 
+  1 ASC, 
+  2 DESC, 
+  3, 
+  4, 
+  5 
 LIMIT 
   15;
