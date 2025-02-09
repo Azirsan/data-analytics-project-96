@@ -1,14 +1,15 @@
 WITH lst_click AS (
     SELECT
-        visitor_id,
+        sessions.visitor_id,
         MAX(sessions.visit_date) AS lst_visit
     FROM
         sessions
     WHERE
-        medium != 'organic'
+        sessions.medium != 'organic'
     GROUP BY
-        visitor_id
+        sessions.visitor_id
 ),
+
 ads_total AS (
     SELECT
         TO_CHAR(campaign_date, 'YYYY-MM-DD') AS camp_date,
@@ -42,6 +43,7 @@ ads_total AS (
         utm_medium,
         utm_campaign
 ),
+
 leads AS (
     SELECT
         s.source AS utm_source,
@@ -74,6 +76,7 @@ leads AS (
         s.campaign,
         DATE(lc.lst_visit)
 )
+
 SELECT
     visit_date,
     l.visitors_count,
@@ -86,7 +89,7 @@ SELECT
     l.revenue
 FROM
     leads AS l
-LEFT JOIN ads_total as atot
+LEFT JOIN ads_total AS atot
     ON
         TO_CHAR(l.visit_date, 'YYYY-MM-DD') = atot.camp_date
         AND l.utm_source = atot.utm_source
