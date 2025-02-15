@@ -1,18 +1,32 @@
-WITH lst_click AS (
+WITH pain AS (
     SELECT
-        sessions.visitor_id,
-        MAX(sessions.visit_date) AS lst_visit
+        l.visitor_id,
+        s.visit_date,
+        s.source AS utm_source,
+        s.medium AS utm_medium,
+        s.campaign AS utm_campaign,
+        l.lead_id,
+        l.created_at,
+        l.amount,
+        l.closing_reason,
+        l.status_id,
+        ROW_NUMBER() OVER (
+            PARTITION BY s.visitor_id
+            ORDER BY s.visit_date DESC
+        ) AS row_num
     FROM
-        sessions
-    WHERE
-        sessions.medium != 'organic'
-    GROUP BY
-        sessions.visitor_id
+        sessions AS s
+    LEFT JOIN
+        leads AS l
+        ON
+            s.visitor_id = l.visitor_id
+            AND s.visit_date <= l.created_at
+    WHERE s.medium != 'organic'
 ),
 
 ads_total AS (
     SELECT
-        TO_CHAR(campaign_date, 'YYYY-MM-DD') AS camp_date,
+        DATE(campaign_date) AS camp_date,
         utm_source,
         utm_medium,
         utm_campaign,
@@ -22,13 +36,13 @@ ads_total AS (
     FROM
         ya_ads
     GROUP BY
-        TO_CHAR(campaign_date, 'YYYY-MM-DD'),
+        DATE(campaign_date),
         utm_source,
         utm_medium,
         utm_campaign
     UNION ALL
     SELECT
-        TO_CHAR(campaign_date, 'YYYY-MM-DD') AS camp_date,
+        DATE(campaign_date) AS camp_date,
         utm_source,
         utm_medium,
         utm_campaign,
@@ -38,67 +52,48 @@ ads_total AS (
     FROM
         vk_ads
     GROUP BY
-        TO_CHAR(campaign_date, 'YYYY-MM-DD'),
+        DATE(campaign_date),
         utm_source,
         utm_medium,
         utm_campaign
-),
-
-leads AS (
-    SELECT
-        s.source AS utm_source,
-        s.medium AS utm_medium,
-        s.campaign AS utm_campaign,
-        DATE(lc.lst_visit) AS visit_date,
-        COUNT(DISTINCT lc.visitor_id) AS visitors_count,
-        COUNT(DISTINCT l.lead_id) AS leads_count,
-        COUNT(
-            DISTINCT CASE
-                WHEN
-                    l.closing_reason = 'Успешно реализовано'
-                    OR l.status_id = 142 THEN l.lead_id
-            END
-        ) AS purchases_count,
-        SUM(l.amount) AS revenue
-    FROM
-        lst_click AS lc
-    INNER JOIN sessions AS s
-        ON
-            lc.visitor_id = s.visitor_id
-            AND lc.lst_visit = s.visit_date
-    LEFT JOIN leads AS l
-        ON
-            s.visitor_id = l.visitor_id
-            AND s.visit_date <= l.created_at
-    GROUP BY
-        s.source,
-        s.medium,
-        s.campaign,
-        DATE(lc.lst_visit)
 )
 
 SELECT
-    l.visit_date,
-    l.visitors_count,
-    l.utm_source,
-    l.utm_medium,
-    l.utm_campaign,
-    atot.total_cost,
-    l.leads_count,
-    l.purchases_count,
-    l.revenue
+    DATE(pain.visit_date) AS visit_date,
+    pain.utm_source,
+    pain.utm_medium,
+    pain.utm_campaign,
+    COUNT(*) AS visitors_count,
+    adt.total_cost,
+    COUNT(pain.lead_id) AS leads_count,
+    SUM(CASE
+        WHEN pain.status_id = 142 THEN 1
+        ELSE 0
+    END) AS purchases_count,
+    SUM(CASE
+        WHEN pain.status_id = 142 THEN pain.amount
+        ELSE 0
+    END) AS revenue
 FROM
-    leads AS l
-LEFT JOIN ads_total AS atot
+    pain
+LEFT JOIN ads_total AS adt
     ON
-        TO_CHAR(l.visit_date, 'YYYY-MM-DD') = atot.camp_date
-        AND l.utm_source = atot.utm_source
-        AND l.utm_medium = atot.utm_medium
-        AND l.utm_campaign = atot.utm_campaign
+        adt.camp_date = DATE(pain.visit_date)
+        AND pain.utm_source = adt.utm_source
+        AND pain.utm_medium = adt.utm_medium
+        AND pain.utm_campaign = adt.utm_campaign
+WHERE
+    pain.row_num = 1
+GROUP BY
+    pain.utm_source,
+    pain.utm_medium,
+    pain.utm_campaign,
+    DATE(pain.visit_date),
+    total_cost
 ORDER BY
-    l.revenue DESC NULLS LAST,
-    l.visit_date ASC,
-    l.visitors_count DESC,
-    l.utm_source ASC,
-    l.utm_medium ASC,
-    l.utm_campaign ASC
+    9 DESC NULLS LAST,
+    1 ASC,
+    5 DESC,
+    2 ASC,
+    3 ASC,
+    4 ASC;
