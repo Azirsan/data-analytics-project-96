@@ -63,8 +63,8 @@ SELECT
     pain.utm_source,
     pain.utm_medium,
     pain.utm_campaign,
-    COUNT(CASE WHEN visitor_id IS NOT NULL THEN 1 ELSE 1 END) AS visitors_count,
     adt.total_cost,
+    COUNT(CASE WHEN pain.visitor_id IS NOT NULL THEN 1 ELSE 1 END) AS visitors_count,
     COUNT(pain.lead_id) AS leads_count,
     SUM(CASE
         WHEN pain.status_id = 142 THEN 1
@@ -94,6 +94,6 @@ ORDER BY
     revenue DESC NULLS LAST,
     visit_date ASC,
     visitors_count DESC,
-    utm_source ASC,
-    utm_medium ASC,
-    utm_campaign ASC;
+    pain.utm_source ASC,
+    pain.utm_medium ASC,
+    pain.utm_campaign asc;
