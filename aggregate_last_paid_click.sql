@@ -63,8 +63,8 @@ SELECT
     pain.utm_source,
     pain.utm_medium,
     pain.utm_campaign,
-    adt.total_cost,
     COUNT(*) AS visitors_count,
+    adt.total_cost,
     COUNT(pain.lead_id) AS leads_count,
     SUM(CASE
         WHEN pain.status_id = 142 THEN 1
