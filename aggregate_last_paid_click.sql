@@ -92,7 +92,7 @@ GROUP BY
     adt.total_cost
 ORDER BY
     revenue DESC NULLS LAST,
-    visit_date ASC,
+    pain.visit_date ASC,
     visitors_count DESC,
     pain.utm_source ASC,
     pain.utm_medium ASC,
