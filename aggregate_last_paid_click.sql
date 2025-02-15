@@ -1,7 +1,6 @@
 WITH pain AS (
     SELECT
         l.visitor_id,
-        s.visit_date,
         s.source AS utm_source,
         s.medium AS utm_medium,
         s.campaign AS utm_campaign,
@@ -10,6 +9,7 @@ WITH pain AS (
         l.amount,
         l.closing_reason,
         l.status_id,
+        DATE(s.visit_date) AS visit_date,
         ROW_NUMBER() OVER (
             PARTITION BY s.visitor_id
             ORDER BY s.visit_date DESC
@@ -59,12 +59,12 @@ ads_total AS (
 )
 
 SELECT
-    DATE(pain.visit_date) AS visit_date,
+    pain.visit_date,
     pain.utm_source,
     pain.utm_medium,
     pain.utm_campaign,
     adt.total_cost,
-    COUNT(CASE WHEN pain.visitor_id IS NOT NULL THEN 1 ELSE 1 END) AS visitors_count,
+    COUNT(*) AS visitors_count,
     COUNT(pain.lead_id) AS leads_count,
     SUM(CASE
         WHEN pain.status_id = 142 THEN 1
@@ -78,7 +78,7 @@ FROM
     pain
 LEFT JOIN ads_total AS adt
     ON
-        adt.camp_date = DATE(pain.visit_date)
+        pain.visit_date = adt.camp_date
         AND pain.utm_source = adt.utm_source
         AND pain.utm_medium = adt.utm_medium
         AND pain.utm_campaign = adt.utm_campaign
@@ -96,4 +96,4 @@ ORDER BY
     visitors_count DESC,
     pain.utm_source ASC,
     pain.utm_medium ASC,
-    pain.utm_campaign asc;
+    pain.utm_campaign ASC;
