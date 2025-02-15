@@ -89,7 +89,7 @@ GROUP BY
     pain.utm_medium,
     pain.utm_campaign,
     DATE(pain.visit_date),
-    total_cost
+    adt.total_cost
 ORDER BY
     9 DESC NULLS LAST,
     1 ASC,
