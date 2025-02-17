@@ -12,7 +12,7 @@ WITH pain AS (
         l.status_id,
         ROW_NUMBER() OVER (
             PARTITION BY l.visitor_id
-            ORDER BY l.created_at DESC, s.visit_date DESC
+            ORDER BY l.created_at DESC
         ) AS row_num
     FROM
         leads AS l
