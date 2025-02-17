@@ -18,9 +18,8 @@ WITH pain AS (
         leads AS l
     INNER JOIN
         sessions AS s ON l.visitor_id = s.visitor_id
-    WHERE
-        s.visit_date <= l.created_at
-        AND s.medium NOT IN ('organic')
+            AND l.created_at >= s.visit_date
+            AND s.medium != 'organic'
 )
 
 SELECT
