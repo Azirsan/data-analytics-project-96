@@ -44,7 +44,7 @@ with pain as (
         s.medium as utm_medium,
         s.campaign as utm_campaign,
         l.lead_id,
-        l.created_at, 
+        l.created_at,
         l.amount,
         l.closing_reason,
         l.status_id,
