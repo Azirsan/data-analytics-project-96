@@ -1,7 +1,6 @@
 WITH pain AS (
     SELECT
         l.visitor_id,
-        s.visit_date,
         s.source AS utm_source,
         s.medium AS utm_medium,
         s.campaign AS utm_campaign,
@@ -10,17 +9,19 @@ WITH pain AS (
         l.amount,
         l.closing_reason,
         l.status_id,
+        DATE(s.visit_date) AS visit_date,
         ROW_NUMBER() OVER (
-            PARTITION BY l.visitor_id
-            ORDER BY l.created_at DESC
+            PARTITION BY s.visitor_id
+            ORDER BY s.visit_date DESC
         ) AS row_num
     FROM
+        sessions AS s
+    LEFT JOIN
         leads AS l
-    INNER JOIN
-        sessions AS s ON
-        l.visitor_id = s.visitor_id
-        AND l.created_at >= s.visit_date
-        AND s.medium != 'organic'
+        ON
+            s.visitor_id = l.visitor_id
+            AND s.visit_date <= l.created_at
+    WHERE s.medium != 'organic'
 )
 
 SELECT
