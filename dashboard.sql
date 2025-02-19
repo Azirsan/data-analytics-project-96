@@ -55,7 +55,8 @@ WITH pain AS (
         sessions AS s
     LEFT JOIN
         leads AS l
-        ON s.visitor_id = l.visitor_id
+        ON
+            s.visitor_id = l.visitor_id
             AND s.visit_date <= l.created_at
     WHERE s.medium != 'organic'
 ),
@@ -114,7 +115,8 @@ final AS (
     FROM
         pain
     LEFT JOIN ads_total AS adt
-        ON pain.visit_date = adt.camp_date
+        ON
+            pain.visit_date = adt.camp_date
             AND pain.utm_source = adt.utm_source
             AND pain.utm_medium = adt.utm_medium
             AND pain.utm_campaign = adt.utm_campaign
@@ -126,7 +128,7 @@ final AS (
         pain.utm_campaign,
         DATE(pain.visit_date),
         adt.total_cost
-) 
+)
 
 SELECT
     -- visit_date,
@@ -149,21 +151,22 @@ SELECT
     medium AS utm_medium,
     campaign AS utm_campaign,
     CASE
-        WHEN lower(source) LIKE '%telegram%'
+        WHEN
+            lower(source) LIKE '%telegram%'
             OR lower(source) = 'tg' THEN 'telegram'
         WHEN lower(source) LIKE '%vk%' THEN 'vk'
         WHEN lower(source) LIKE '%yandex%' THEN 'yandex'
         ELSE source
     END AS utm_source,
-    EXTRACT(week FROM visit_date)
-    - EXTRACT(week FROM DATE_TRUNC('month', visit_date))
+    extract(WEEK FROM visit_date)
+    - extract(WEEK FROM date_trunc('month', visit_date))
     + 1 AS week_number,
-    COUNT(*) AS visits
+    count(*) AS visits
 FROM sessions
 GROUP BY
     utm_source,
     medium,
     campaign,
-    EXTRACT(week FROM visit_date)
-    - EXTRACT(week FROM DATE_TRUNC('month', visit_date))
+    extract(WEEK FROM visit_date)
+    - extract(WEEK FROM date_trunc('month', visit_date))
     + 1;
