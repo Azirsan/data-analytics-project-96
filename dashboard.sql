@@ -152,21 +152,21 @@ SELECT
     campaign AS utm_campaign,
     CASE
         WHEN
-            lower(source) LIKE '%telegram%'
-            OR lower(source) = 'tg' THEN 'telegram'
-        WHEN lower(source) LIKE '%vk%' THEN 'vk'
-        WHEN lower(source) LIKE '%yandex%' THEN 'yandex'
+            LOWER(source) LIKE '%telegram%'
+            OR LOWER(source) = 'tg' THEN 'telegram'
+        WHEN LOWER(source) LIKE '%vk%' THEN 'vk'
+        WHEN LOWER(source) LIKE '%yandex%' THEN 'yandex'
         ELSE source
     END AS utm_source,
-    extract(WEEK FROM visit_date)
-    - extract(WEEK FROM date_trunc('month', visit_date))
+    EXTRACT(WEEK FROM visit_date)
+    - EXTRACT(WEEK FROM date_trunc('month', visit_date))
     + 1 AS week_number,
-    count(*) AS visits
+    COUNT(*) AS visits
 FROM sessions
 GROUP BY
     utm_source,
     medium,
     campaign,
-    extract(WEEK FROM visit_date)
-    - extract(WEEK FROM date_trunc('month', visit_date))
+    EXTRACT(WEEK FROM visit_date)
+    - EXTRACT(WEEK FROM DATE_TRUNC('month', visit_date))
     + 1;
