@@ -150,7 +150,7 @@ ORDER BY utm_source DESC;
 SELECT
     medium AS utm_medium,
     campaign AS utm_campaign,
-    CASE
+    CASE -- для разбивки по источникам
         WHEN
             LOWER(source) LIKE '%telegram%'
             OR LOWER(source) = 'tg' THEN 'telegram'
