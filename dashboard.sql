@@ -159,7 +159,7 @@ SELECT
         ELSE source
     END AS utm_source,
     EXTRACT(WEEK FROM visit_date)
-    - EXTRACT(WEEK FROM date_trunc('month', visit_date))
+    - EXTRACT(WEEK FROM DATE_TRUNC('month', visit_date))
     + 1 AS week_number,
     COUNT(*) AS visits
 FROM sessions
