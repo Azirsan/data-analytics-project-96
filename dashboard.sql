@@ -149,49 +149,27 @@ select
     medium as utm_medium,
     campaign as utm_campaign,
     case
-        when lower(source) like '%admitad%' then 'admitad'
-        when lower(source) like '%baidu%' then 'baidu.com'
-        when lower(source) like '%bing%' then 'bing.com'
-        when lower(source) like '%botmother%' then 'botmother'
-        when lower(source) like '%dzen%' then 'dzen'
-        when lower(source) like '%facebook%' then 'facebook.com'
-        when lower(source) like '%go.mail.ru%' then 'go.mail.ru'
-        when lower(source) like '%google%' then 'google'
-        when lower(source) like '%instagram%' then 'instagram'
-        when lower(source) like '%mytarget%' then 'mytarget'
-        when lower(source) like '%organic%' then 'organic'
-        when lower(source) like '%partners%' then 'partners'
-        when lower(source) like '%podcast%' then 'podcast'
-        when lower(source) like '%public%' then 'public'
-        when lower(source) like '%rutube%' then 'rutube'
-        when lower(source) like '%search.ukr.net%' then 'search.ukr.net'
-        when lower(source) like '%slack%' then 'slack'
-        when lower(source) like '%social%' then 'social'
         when
             lower(source) like '%telegram%'
-            or lower(source) = 'telegram.me'
             or lower(source) = 'tg'
             then 'telegram'
-        when lower(source) like '%timepad%' then 'timepad'
-        when lower(source) like '%tproger%' then 'tproger'
-        when lower(source) like '%twitter%' then 'twitter.com'
-        when lower(source) like '%vc%' then 'vc'
-        when
-            lower(source) like '%vk%'
-            or lower(source) in ('vk.com', 'vk-group', 'vkontakte', 'vk-senler')
+        when lower(source) like '%vk%'
             then 'vk'
         when
             lower(source) like '%yandex%'
-            or lower(source) in ('yandex.com', 'yandex-direct')
             then 'yandex'
-        when
-            lower(source) like '%zen%'
-            or lower(source) in ('zen_from_telegram')
-            then 'dzen'
         else source
     end as utm_source,
-    extract(week from visit_date) - 21 as week_number,
+    extract(week from visit_date)
+    - extract(week from date_trunc('month', visit_date))
+    + 1 as week_number,
     count(*) as visits
 from
     sessions
-group by utm_source, medium, campaign, extract(week from visit_date) - 21;
+group by
+    utm_source,
+    medium,
+    campaign,
+    extract(week from visit_date)
+    - extract(week from date_trunc('month', visit_date))
+    + 1
