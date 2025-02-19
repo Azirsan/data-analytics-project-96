@@ -5,7 +5,7 @@ with pain as (
         s.visit_date,
         l.created_at,
         AGE(l.created_at, s.visit_date) as time_clouse,
-        row_number() over (
+        ROW_NUMBER() over (
             partition by l.visitor_id
             order by s.visit_date asc
         ) as row_num
@@ -19,16 +19,18 @@ with pain as (
             and s.medium != 'organic'
     where l.status_id = 142
 ),
+
 decil_pain as (
     select
         time_clouse,
-        ntile(10) over (
+        NTILE(10) over (
             order by time_clouse asc
         ) as nt
     from pain
     where row_num = 1
 )
-select max(time_clouse) as final_day
+
+select MAX(time_clouse) as final_day
 from decil_pain
 where nt <= 9;
 
