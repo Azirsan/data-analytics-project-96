@@ -4,9 +4,7 @@ with pain as (
         l.visitor_id,
         s.visit_date,
         l.created_at,
-        extract(
-            epoch from (l.created_at - s.visit_date) / 86400.0
-        ) as time_clouse,
+        AGE(l.created_at, s.visit_date) as time_clouse,
         row_number() over (
             partition by l.visitor_id
             order by s.visit_date asc
@@ -21,7 +19,6 @@ with pain as (
             and s.medium != 'organic'
     where l.status_id = 142
 ),
-
 decil_pain as (
     select
         time_clouse,
@@ -31,8 +28,7 @@ decil_pain as (
     from pain
     where row_num = 1
 )
-
-select round(max(time_clouse)::numeric, 0) as final_day
+select max(time_clouse) as final_day
 from decil_pain
 where nt <= 9;
 
