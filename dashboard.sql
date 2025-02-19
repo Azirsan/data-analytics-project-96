@@ -13,7 +13,8 @@ WITH pain AS (
         leads AS l
     INNER JOIN
         sessions AS s
-        ON l.visitor_id = s.visitor_id
+        ON
+            l.visitor_id = s.visitor_id
             AND l.created_at >= s.visit_date
             AND s.medium != 'organic'
     WHERE l.status_id = 142
