@@ -4,9 +4,9 @@ WITH pain AS (
         l.visitor_id,
         s.visit_date,
         l.created_at,
-        AGE(l.created_at, s.visit_date) AS time_clouse,
+        l.created_at - s.visit_date AS time_clouse,
         ROW_NUMBER() OVER (
-            PARTITION BY l.visitor_id
+            PARTITION BY s.visitor_id
             ORDER BY s.visit_date ASC
         ) AS row_num
     FROM
@@ -18,21 +18,14 @@ WITH pain AS (
             AND l.created_at >= s.visit_date
             AND s.medium != 'organic'
     WHERE l.status_id = 142
-),
-
-decil_pain AS (
-    SELECT
-        time_clouse,
-        NTILE(10) OVER (
-            ORDER BY time_clouse ASC
-        ) AS nt
-    FROM pain
-    WHERE row_num = 1
 )
 
-SELECT MAX(time_clouse) AS final_day
-FROM decil_pain
-WHERE nt <= 9;
+SELECT
+    PERCENTILE_DISC(0.9) WITHIN GROUP (
+        ORDER BY time_clouse
+    ) AS lst_clouse
+FROM pain
+WHERE row_num = 1
 
 -- МЕТРИКИ
 WITH pain AS (
@@ -150,23 +143,12 @@ ORDER BY utm_source DESC;
 SELECT
     medium AS utm_medium,
     campaign AS utm_campaign,
-    CASE -- для разбивки по источникам
-        WHEN
-            LOWER(source) LIKE '%telegram%'
-            OR LOWER(source) = 'tg' THEN 'telegram'
-        WHEN LOWER(source) LIKE '%vk%' THEN 'vk'
-        WHEN LOWER(source) LIKE '%yandex%' THEN 'yandex'
-        ELSE source
-    END AS utm_source,
-    EXTRACT(WEEK FROM visit_date)
-    - EXTRACT(WEEK FROM DATE_TRUNC('month', visit_date))
-    + 1 AS week_number,
+    source AS utm_source,
+    EXTRACT(WEEK FROM visit_date) AS week_number,
     COUNT(*) AS visits
 FROM sessions
 GROUP BY
     utm_source,
     medium,
     campaign,
-    EXTRACT(WEEK FROM visit_date)
-    - EXTRACT(WEEK FROM DATE_TRUNC('month', visit_date))
-    + 1;
+    EXTRACT(WEEK FROM visit_date);
