@@ -25,7 +25,7 @@ SELECT
         ORDER BY time_clouse
     ) AS lst_clouse
 FROM pain
-WHERE row_num = 1
+WHERE row_num = 1;
 
 -- МЕТРИКИ
 WITH pain AS (
